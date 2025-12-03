@@ -20,6 +20,7 @@ export default function Trips() {
 
   const currentPage = parseInt(router.query.page) || 1;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchProducts();
   }, [currentPage, router.query.search, router.query.status, router.query.sortBy, router.query.sortOrder]);

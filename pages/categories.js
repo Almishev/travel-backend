@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import Spinner from "@/components/Spinner";
 import { withSwal } from 'react-sweetalert2';
+import Image from "next/image";
 
 function Categories({swal}) {
   const [editedCategory, setEditedCategory] = useState(null);
@@ -131,7 +132,13 @@ function Categories({swal}) {
           <label className="block mb-1">Снимка</label>
           <div className="mb-2 flex flex-wrap gap-2 items-center">
             {image && (
-              <img src={image} alt="genre" className="h-24 rounded border" />
+              <Image
+                src={image}
+                alt="genre"
+                width={96}
+                height={96}
+                className="h-24 w-24 rounded border object-cover"
+              />
             )}
             {isUploading && (
               <div className="h-24 flex items-center">
@@ -224,7 +231,17 @@ function Categories({swal}) {
           {categories.length > 0 && categories.map(category => (
             <tr key={category._id}>
               <td>{category.name}</td>
-              <td>{category.image && (<img src={category.image} alt="" className="h-12 rounded" />)}</td>
+              <td>
+                {category.image && (
+                  <Image
+                    src={category.image}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded object-cover"
+                  />
+                )}
+              </td>
               <td>{category?.parent?.name}</td>
               <td>
                 <button

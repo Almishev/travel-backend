@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
+import Image from "next/image";
 import axios from "axios";
 import Spinner from "@/components/Spinner";
 import {ReactSortable} from "react-sortablejs";
@@ -300,8 +301,8 @@ export default function TripForm({
           <option value="archived">Архивирана</option>
         </select>
         <small className="text-gray-500 block mt-1">
-          <strong>Няма записани (draft)</strong> - няма активни резервации (автоматично се променя при първа резервация на "Има записани")<br/>
-          <strong>Има записани (published)</strong> - има поне една активна резервация (автоматично се променя при отмяна на всички резервации на "Няма записани")<br/>
+          <strong>Няма записани (draft)</strong> - няма активни резервации (автоматично се променя при първа резервация на &quot;Има записани&quot;)<br/>
+          <strong>Има записани (published)</strong> - има поне една активна резервация (автоматично се променя при отмяна на всички резервации на &quot;Няма записани&quot;)<br/>
           <strong>Отменена</strong> - екскурзията е отменена, не се показва на сайта<br/>
           <strong>Архивирана</strong> - стара екскурзия, не се показва на сайта
         </small>
@@ -356,7 +357,13 @@ export default function TripForm({
               >
                 ×
               </button>
-              <img src={link} alt="" className="max-h-full rounded-lg object-cover"/>
+              <Image
+                src={link}
+                alt=""
+                width={96}
+                height={96}
+                className="max-h-full rounded-lg object-cover"
+              />
             </div>
           ))}
         </ReactSortable>

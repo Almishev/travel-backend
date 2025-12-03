@@ -15,6 +15,7 @@ function SettingsPage({swal}) {
   const [isUploadingDesktop, setIsUploadingDesktop] = useState(false);
   const [isUploadingMobile, setIsUploadingMobile] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchProducts();
     fetchSettings();

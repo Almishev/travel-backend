@@ -20,6 +20,7 @@ export default function TripDetailsPage() {
     reservationIndex: '',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!id) return;
     fetchTrip();
