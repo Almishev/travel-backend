@@ -54,6 +54,7 @@ export default async function handle(req, res) {
         Key: newFilename,
         Body: fs.readFileSync(file.path),
         ContentType: mime.lookup(file.path) || 'video/mp4',
+        ACL: 'public-read', // Публичен достъп за да може видеото да се зарежда
       }));
       
       const link = `https://${bucketName}.s3.amazonaws.com/${newFilename}`;

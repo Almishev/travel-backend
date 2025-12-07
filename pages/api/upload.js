@@ -166,6 +166,7 @@ export default async function handle(req,res) {
             Key: newFilename,
             Body: optimizedBuffer,
             ContentType: contentType,
+            ACL: 'public-read', // Публичен достъп за да може снимката да се зарежда
           }));
           
           // Генерираме правилния S3 URL според региона

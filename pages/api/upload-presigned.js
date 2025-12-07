@@ -37,6 +37,7 @@ export default async function handle(req, res) {
       Bucket: bucketName,
       Key: newFilename,
       ContentType: fileType,
+      ACL: 'public-read', // Публичен достъп за да може файлът да се зарежда
       // Добавяме CORS headers за по-добра съвместимост
       Metadata: {
         'original-filename': fileName,
