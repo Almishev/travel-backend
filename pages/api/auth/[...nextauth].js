@@ -8,7 +8,7 @@ import {Admin} from "@/models/Admin";
 
 export const authOptions = {
   secret: process.env.SECRET,
-  // Set the base URL for NextAuth
+  // Set the base URL for NextAuth - взима се от .env
   ...(process.env.NEXTAUTH_URL && { url: process.env.NEXTAUTH_URL }),
   providers: [
     GoogleProvider({
@@ -78,6 +78,32 @@ export const authOptions = {
             isAdmin: false
           }
         };
+      }
+    },
+    async redirect({ url, baseUrl }) {
+      // Използвай NEXTAUTH_URL от .env или baseUrl (който NextAuth автоматично определя от request-а)
+      const backendBaseUrl = process.env.NEXTAUTH_URL || baseUrl;
+      
+      // Ако URL-ът е относителен път, добави baseUrl
+      if (url.startsWith('/')) {
+        return `${backendBaseUrl}${url}`;
+      }
+      
+      // Ако URL-ът е пълен, провери дали е от бекенда
+      try {
+        const urlObj = new URL(url);
+        const backendUrlObj = new URL(backendBaseUrl);
+        
+        // Ако е от същия домейн и порт като бекенда, позволи го
+        if (urlObj.origin === backendUrlObj.origin) {
+          return url;
+        }
+        
+        // Ако е от друг домейн/порт, пренасочи към бекенда
+        return backendBaseUrl;
+      } catch (e) {
+        // При грешка, пренасочи към бекенда
+        return backendBaseUrl;
       }
     },
   },

@@ -2,7 +2,6 @@ import Layout from "@/components/Layout";
 import {useSession, signOut} from "next-auth/react";
 import {useEffect, useState} from "react";
 import axios from "axios";
-import Image from "next/image";
 
 export default function Home() {
   const {data: session, status} = useSession();
@@ -25,16 +24,7 @@ export default function Home() {
         Здравей, <b>{session?.user?.name}</b>
       </h2>
       <div className="flex bg-gray-300 gap-1 text-black rounded-lg overflow-hidden">
-        {session?.user?.image && (
-          <Image
-            src={session.user.image}
-            alt=""
-            width={24}
-            height={24}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-        )}
-        <span className="px-2">
+        <span className="px-2 py-1">
           {session?.user?.name}
         </span>
       </div>
