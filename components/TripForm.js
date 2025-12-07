@@ -55,7 +55,11 @@ export default function TripForm({
 
   const [category, setCategory] = useState(assignedCategory || "");
   const [tripProperties, setTripProperties] = useState(assignedProperties || {});
-  const [images, setImages] = useState(existingImages || []);
+  // Филтрираме невалидни снимки при инициализация
+  const validImages = (existingImages || []).filter(
+    link => link && typeof link === 'string' && link.trim() !== ''
+  );
+  const [images, setImages] = useState(validImages);
   const [status, setStatus] = useState(existingStatus || "draft");
   const [goToTrips, setGoToTrips] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -67,6 +71,16 @@ export default function TripForm({
       setCategories(result.data);
     });
   }, []);
+
+  // Обновяваме images когато existingImages се промени (при зареждане на данните)
+  useEffect(() => {
+    if (existingImages) {
+      const validImages = existingImages.filter(
+        link => link && typeof link === 'string' && link.trim() !== ''
+      );
+      setImages(validImages);
+    }
+  }, [existingImages]);
 
   function handleMaxSeatsChange(value) {
     const parsed = parseInt(value || "0", 10);
@@ -350,7 +364,7 @@ export default function TripForm({
               <button
                 type="button"
                 onClick={() => {
-                  setImages(prev => prev.filter((_, i) => i !== index));
+                  setImages(prev => prev.filter(img => img !== link));
                 }}
                 className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-red-600 text-white text-xs shadow"
                 title="Изтрий снимката"
@@ -363,6 +377,7 @@ export default function TripForm({
                 width={96}
                 height={96}
                 className="max-h-full rounded-lg object-cover"
+                unoptimized={link?.includes('s3.amazonaws.com') || link?.includes('s3.eu-central-1.amazonaws.com')}
               />
             </div>
           ))}

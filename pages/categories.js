@@ -132,13 +132,24 @@ function Categories({swal}) {
           <label className="block mb-1">Снимка</label>
           <div className="mb-2 flex flex-wrap gap-2 items-center">
             {image && (
-              <Image
-                src={image}
-                alt="genre"
-                width={96}
-                height={96}
-                className="h-24 w-24 rounded border object-cover"
-              />
+              <div className="relative h-24 w-24 bg-white p-1 shadow-sm rounded border border-gray-200 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => setImage('')}
+                  className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-red-600 text-white text-xs shadow z-10"
+                  title="Изтрий снимката"
+                >
+                  ×
+                </button>
+                <Image
+                  src={image}
+                  alt="genre"
+                  width={96}
+                  height={96}
+                  className="h-full w-full rounded object-cover"
+                  unoptimized={image?.includes('s3.amazonaws.com') || image?.includes('s3.eu-central-1.amazonaws.com')}
+                />
+              </div>
             )}
             {isUploading && (
               <div className="h-24 flex items-center">

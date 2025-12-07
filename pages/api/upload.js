@@ -8,6 +8,11 @@ import {isAdminRequest} from "@/pages/api/auth/[...nextauth]";
 const bucketName = process.env.S3_BUCKET_NAME;
 
 export default async function handle(req,res) {
+  // Проверка за HTTP метода
+  if (req.method !== 'POST') {
+    return res.status(405).json({message: 'Method not allowed'});
+  }
+
   try {
     await mongooseConnect();
     await isAdminRequest(req,res);
