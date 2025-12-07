@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-По подразбиране админът работи на `http://localhost:3001` (ако е променено в `package.json`, следвай тамошния порт).
+По подразбиране админът работи на `http://localhost:3000` (ако е променено в `package.json`, следвай тамошния порт).
 
 Необходими са коректно попълнени променливи в `travel-backend/.env` (MongoDB, NextAuth, AWS S3 и др.).
 
