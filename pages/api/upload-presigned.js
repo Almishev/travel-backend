@@ -33,11 +33,12 @@ export default async function handle(req, res) {
     const newFilename = `videos/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
 
     // Създаваме команда за качване с CORS headers
+    // Забележка: ACL не се използва, защото bucket-ът е с "Bucket owner enforced"
+    // Публичният достъп се управлява чрез Bucket Policy в AWS конзолата
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: newFilename,
       ContentType: fileType,
-      ACL: 'public-read', // Публичен достъп за да може файлът да се зарежда
       // Добавяме CORS headers за по-добра съвместимост
       Metadata: {
         'original-filename': fileName,

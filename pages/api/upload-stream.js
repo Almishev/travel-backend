@@ -49,12 +49,13 @@ export default async function handle(req, res) {
       // За видео файлове ги слагаме в videos/ папка
       const newFilename = `videos/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
       
+      // Забележка: ACL не се използва, защото bucket-ът е с "Bucket owner enforced"
+      // Публичният достъп се управлява чрез Bucket Policy в AWS конзолата
       await client.send(new PutObjectCommand({
         Bucket: bucketName,
         Key: newFilename,
         Body: fs.readFileSync(file.path),
         ContentType: mime.lookup(file.path) || 'video/mp4',
-        ACL: 'public-read', // Публичен достъп за да може видеото да се зарежда
       }));
       
       const link = `https://${bucketName}.s3.amazonaws.com/${newFilename}`;

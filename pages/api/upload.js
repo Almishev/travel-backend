@@ -160,13 +160,14 @@ export default async function handle(req,res) {
         const newFilename = `${timestamp}-${randomSuffix}.${finalExt}`;
         
         // Качване в S3 с обработка на грешки
+        // Забележка: ACL не се използва, защото bucket-ът е с "Bucket owner enforced"
+        // Публичният достъп се управлява чрез Bucket Policy в AWS конзолата
         try {
           await client.send(new PutObjectCommand({
             Bucket: bucketName,
             Key: newFilename,
             Body: optimizedBuffer,
             ContentType: contentType,
-            ACL: 'public-read', // Публичен достъп за да може снимката да се зарежда
           }));
           
           // Генерираме правилния S3 URL според региона

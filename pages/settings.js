@@ -560,14 +560,49 @@ function SettingsPage({swal}) {
                               'Content-Type': 'multipart/form-data',
                             },
                           });
-                          const fileUrl = res.data.links?.[0] || '';
+                          
+                          console.log('Upload response:', res.data);
+                          
+                          // Проверяваме различни формати на отговора
+                          const fileUrl = res.data.links?.[0] || 
+                                        res.data.link || 
+                                        res.data.url || 
+                                        (Array.isArray(res.data.links) && res.data.links.length > 0 ? res.data.links[0] : '');
+                          
+                          if (!fileUrl) {
+                            console.error('No file URL in response:', res.data);
+                            throw new Error('Неуспешно качване - липсва URL на снимката. Провери конзолата за детайли.');
+                          }
+                          
+                          console.log('File URL:', fileUrl);
                           setHeroImage(fileUrl);
-                          swal.fire({
-                            title: 'Успех!',
-                            text: 'Снимката е качена успешно',
-                            icon: 'success',
-                            timer: 2000,
-                          });
+                          
+                          // Автоматично запазваме настройките след качване на снимката
+                          try {
+                            await axios.post('/api/settings', {
+                              featuredProductId,
+                              heroMediaType,
+                              heroVideoDesktop,
+                              heroVideoMobile,
+                              heroImage: fileUrl,
+                              heroTitle,
+                              heroSubtitle,
+                            });
+                            swal.fire({
+                              title: 'Успех!',
+                              text: 'Снимката е качена и запазена успешно',
+                              icon: 'success',
+                              timer: 2000,
+                            });
+                          } catch (saveError) {
+                            console.error('Error saving settings:', saveError);
+                            swal.fire({
+                              title: 'Успех при качване!',
+                              text: 'Снимката е качена, но не беше запазена. Моля, натиснете "Запази настройките".',
+                              icon: 'warning',
+                              timer: 3000,
+                            });
+                          }
                         } catch (error) {
                           console.error('Upload error:', error);
                           let errorMessage = 'Нещо се обърка';
