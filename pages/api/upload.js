@@ -96,6 +96,12 @@ export default async function handle(req,res) {
               continue;
             }
 
+            // Четем оригиналния файл за да видим размера преди оптимизация
+            const originalFileBuffer = fs.readFileSync(file.path);
+            const originalSize = originalFileBuffer.length;
+            const originalSizeMB = (originalSize / (1024 * 1024)).toFixed(2);
+            console.log(`Файл ${i + 1} (${file.originalFilename}): Оригинален размер: ${originalSize} bytes (${originalSizeMB} MB)`);
+
             // Опитваме се да заредим Sharp
             const sharpInstance = await getSharp();
             if (!sharpInstance) {
@@ -149,12 +155,21 @@ export default async function handle(req,res) {
                 .toBuffer();
               contentType = 'image/gif';
             }
+            
+            // Логваме размера след оптимизация
+            const optimizedSize = optimizedBuffer.length;
+            const optimizedSizeMB = (optimizedSize / (1024 * 1024)).toFixed(2);
+            const compressionRatio = ((1 - optimizedSize / originalSize) * 100).toFixed(1);
+            console.log(`Файл ${i + 1} (${file.originalFilename}): Оптимизиран размер: ${optimizedSize} bytes (${optimizedSizeMB} MB) | Компресия: ${compressionRatio}%`);
           } catch (error) {
-            console.error(`Sharp optimization error for file ${i + 1}:`, error);
+            console.warn(`Sharp optimization error for file ${i + 1} (${file.originalFilename}):`, error.message);
             // Ако Sharp не успее, опитваме се да използваме оригиналния файл
             try {
               if (fs.existsSync(file.path)) {
                 optimizedBuffer = fs.readFileSync(file.path);
+                const fallbackSize = optimizedBuffer.length;
+                const fallbackSizeMB = (fallbackSize / (1024 * 1024)).toFixed(2);
+                console.log(`Файл ${i + 1} (${file.originalFilename}): Използва се оригинален файл (fallback): ${fallbackSize} bytes (${fallbackSizeMB} MB)`);
                 contentType = mime.lookup(file.path) || `image/${ext}`;
               } else {
                 errors.push(`Файл ${i + 1}: Грешка при оптимизация и файлът не съществува`);
