@@ -6,6 +6,6 @@
     }
   },
   "buildCommand": "npm run build",
-  "installCommand": "npm install --include=optional"
+  "installCommand": "npm install --include=optional && npm rebuild sharp --platform=linux --arch=x64"
 }
 

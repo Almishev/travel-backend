@@ -2,10 +2,23 @@ import multiparty from 'multiparty';
 import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import fs from 'fs';
 import mime from 'mime-types';
-import sharp from 'sharp';
 import {mongooseConnect} from "@/lib/mongoose";
 import {isAdminRequest} from "@/pages/api/auth/[...nextauth]";
 const bucketName = process.env.S3_BUCKET_NAME;
+
+// Динамичен import на Sharp - зарежда се само когато е нужен
+let sharp = null;
+async function getSharp() {
+  if (!sharp) {
+    try {
+      sharp = (await import('sharp')).default;
+    } catch (error) {
+      console.error('Failed to load Sharp:', error);
+      return null;
+    }
+  }
+  return sharp;
+}
 
 export default async function handle(req,res) {
   // Проверка за HTTP метода
@@ -83,8 +96,15 @@ export default async function handle(req,res) {
               continue;
             }
 
+            // Опитваме се да заредим Sharp
+            const sharpInstance = await getSharp();
+            if (!sharpInstance) {
+              // Ако Sharp не може да се зареди, използваме оригиналния файл
+              throw new Error('Sharp не е наличен');
+            }
+
             // Компресираме изображението с Sharp
-            const image = sharp(file.path);
+            const image = sharpInstance(file.path);
             const metadata = await image.metadata();
             
             // Проверка за валидни метаданни
