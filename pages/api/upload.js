@@ -55,7 +55,7 @@ export default async function handle(req,res) {
       return res.status(400).json({message: 'Няма файлове за качване'});
     }
 
-    console.log('length:', files.file.length);
+    console.log(`[UPLOAD] Започва обработка на ${files.file.length} файл(а)`);
   const client = new S3Client({
     region: process.env.S3_REGION || 'us-east-1',
     credentials: {
@@ -82,6 +82,7 @@ export default async function handle(req,res) {
           continue;
         }
 
+        console.log(`[UPLOAD] Файл ${i + 1}: ${file.originalFilename} (${ext})`);
         const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
         
         let optimizedBuffer;
@@ -100,7 +101,7 @@ export default async function handle(req,res) {
             const originalFileBuffer = fs.readFileSync(file.path);
             const originalSize = originalFileBuffer.length;
             const originalSizeMB = (originalSize / (1024 * 1024)).toFixed(2);
-            console.log(`Файл ${i + 1} (${file.originalFilename}): Оригинален размер: ${originalSize} bytes (${originalSizeMB} MB)`);
+            console.log(`[UPLOAD] Файл ${i + 1} (${file.originalFilename}): Оригинален размер: ${originalSize} bytes (${originalSizeMB} MB)`);
 
             // Опитваме се да заредим Sharp
             const sharpInstance = await getSharp();
@@ -160,7 +161,8 @@ export default async function handle(req,res) {
             const optimizedSize = optimizedBuffer.length;
             const optimizedSizeMB = (optimizedSize / (1024 * 1024)).toFixed(2);
             const compressionRatio = ((1 - optimizedSize / originalSize) * 100).toFixed(1);
-            console.log(`Файл ${i + 1} (${file.originalFilename}): Оптимизиран размер: ${optimizedSize} bytes (${optimizedSizeMB} MB) | Компресия: ${compressionRatio}%`);
+            console.log(`[UPLOAD] Файл ${i + 1} (${file.originalFilename}): ✅ Sharp оптимизация успешна!`);
+            console.log(`[UPLOAD] Файл ${i + 1}: Оптимизиран размер: ${optimizedSize} bytes (${optimizedSizeMB} MB) | Компресия: ${compressionRatio}%`);
           } catch (error) {
             console.warn(`Sharp optimization error for file ${i + 1} (${file.originalFilename}):`, error.message);
             // Ако Sharp не успее, опитваме се да използваме оригиналния файл
@@ -169,7 +171,8 @@ export default async function handle(req,res) {
                 optimizedBuffer = fs.readFileSync(file.path);
                 const fallbackSize = optimizedBuffer.length;
                 const fallbackSizeMB = (fallbackSize / (1024 * 1024)).toFixed(2);
-                console.log(`Файл ${i + 1} (${file.originalFilename}): Използва се оригинален файл (fallback): ${fallbackSize} bytes (${fallbackSizeMB} MB)`);
+                console.log(`[UPLOAD] Файл ${i + 1} (${file.originalFilename}): ⚠️ Sharp не е наличен, използва се оригинален файл (fallback)`);
+                console.log(`[UPLOAD] Файл ${i + 1}: Fallback размер: ${fallbackSize} bytes (${fallbackSizeMB} MB)`);
                 contentType = mime.lookup(file.path) || `image/${ext}`;
               } else {
                 errors.push(`Файл ${i + 1}: Грешка при оптимизация и файлът не съществува`);
@@ -217,6 +220,7 @@ export default async function handle(req,res) {
             : `${bucketName}.s3.${region}.amazonaws.com`;
           const link = `https://${s3Domain}/${newFilename}`;
           links.push(link);
+          console.log(`[UPLOAD] Файл ${i + 1} (${file.originalFilename}): ✅ Успешно качен в S3: ${link}`);
         } catch (s3Error) {
           console.error(`S3 upload error for file ${i + 1}:`, s3Error);
           errors.push(`Файл ${i + 1}: Грешка при качване в S3: ${s3Error.message}`);
