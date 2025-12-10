@@ -68,7 +68,8 @@ function Categories({swal}) {
       showCancelButton: true,
       cancelButtonText: 'Отказ',
       confirmButtonText: 'Да, изтрий!',
-      confirmButtonColor: '#d55',
+      confirmButtonColor: '#dc2626', // По-тъмно червено (red-600)
+      cancelButtonColor: '#4b5563', // Тъмно сиво (gray-600)
       reverseButtons: true,
     }).then(async result => {
       if (result.isConfirmed) {

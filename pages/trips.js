@@ -3,8 +3,9 @@ import Link from "next/link";
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {useRouter} from "next/router";
+import { withSwal } from 'react-sweetalert2';
 
-export default function Trips() {
+function Trips({swal}) {
   const router = useRouter();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -121,32 +122,77 @@ export default function Trips() {
   const [cleaning, setCleaning] = useState(false);
 
   async function handleArchivePast() {
-    if (!confirm('Сигурни ли сте, че искате да архивирате минали екскурзии без резервации?')) {
+    const result = await swal.fire({
+      title: 'Сигурни ли сте?',
+      text: 'Искате ли да архивирате минали екскурзии без резервации?',
+      showCancelButton: true,
+      cancelButtonText: 'Отказ',
+      confirmButtonText: 'Да, архивирай!',
+      confirmButtonColor: '#2563eb', // Синьо (blue-600)
+      cancelButtonColor: '#4b5563', // Тъмно сиво (gray-600)
+      reverseButtons: true,
+    });
+    
+    if (!result.isConfirmed) {
       return;
     }
+    
     setArchiving(true);
     try {
       const response = await axios.post('/api/trips/archive-past');
-      alert(response.data.message);
+      await swal.fire({
+        title: 'Успешно!',
+        text: response.data.message,
+        icon: 'success',
+        confirmButtonColor: '#2563eb',
+      });
       fetchProducts(); // Обновяваме списъка
     } catch (error) {
-      alert('Грешка при архивиране: ' + (error.response?.data?.message || error.message));
+      await swal.fire({
+        title: 'Грешка!',
+        text: 'Грешка при архивиране: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        confirmButtonColor: '#dc2626',
+      });
     } finally {
       setArchiving(false);
     }
   }
 
   async function handleCleanupArchived() {
-    if (!confirm('ВНИМАНИЕ: Това ще изтрие ПЕРМАНЕНТНО архивираните екскурзии без резервации!\n\nСигурни ли сте?')) {
+    const result = await swal.fire({
+      title: 'ВНИМАНИЕ!',
+      html: 'Това ще изтрие <strong>ПЕРМАНЕНТНО</strong> архивираните екскурзии без резервации!<br><br>Сигурни ли сте?',
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonText: 'Отказ',
+      confirmButtonText: 'Да, изтрий!',
+      confirmButtonColor: '#dc2626', // Тъмно червено (red-600)
+      cancelButtonColor: '#4b5563', // Тъмно сиво (gray-600)
+      reverseButtons: true,
+    });
+    
+    if (!result.isConfirmed) {
       return;
     }
+    
     setCleaning(true);
     try {
       const response = await axios.post('/api/trips/cleanup-archived');
-      alert(response.data.message);
+      await swal.fire({
+        title: 'Успешно!',
+        text: response.data.message,
+        icon: 'success',
+        confirmButtonColor: '#2563eb',
+      });
       fetchProducts(); // Обновяваме списъка
     } catch (error) {
-      alert('Грешка при изтриване: ' + (error.response?.data?.message || error.message));
+      await swal.fire({
+        title: 'Грешка!',
+        text: 'Грешка при изтриване: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        confirmButtonColor: '#dc2626',
+      });
     } finally {
       setCleaning(false);
     }
@@ -440,3 +486,7 @@ export default function Trips() {
     </Layout>
   );
 }
+
+export default withSwal(({swal}, ref) => (
+  <Trips swal={swal} />
+));

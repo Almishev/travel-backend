@@ -21,6 +21,11 @@ const nextConfig = {
       },
     ],
   },
+  // Важно: Позволява на Sharp да работи правилно в Vercel (Linux)
+  // Sharp е native модул и трябва да се третира като external package
+  experimental: {
+    serverComponentsExternalPackages: ['sharp'],
+  },
   // Увеличаваме лимита за API routes (в MB)
   // Забележка: Vercel все още има ограничение от 4.5MB за request body
   // За по-големи файлове трябва да се използва streaming или presigned URLs
