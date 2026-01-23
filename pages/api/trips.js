@@ -2,6 +2,7 @@ import {Product} from "@/models/Product";
 import {mongooseConnect} from "@/lib/mongoose";
 import {isAdminRequest} from "@/pages/api/auth/[...nextauth]";
 import {deleteS3Objects} from "@/lib/s3";
+import {generateUniqueSlug} from "@/lib/slugify";
 
 export default async function handle(req, res) {
   const {method} = req;
@@ -115,8 +116,15 @@ export default async function handle(req, res) {
     const initialAvailableSeats =
       availableSeats !== undefined ? Number(availableSeats) : initialMaxSeats;
 
+    // Generate unique slug from title
+    const slug = await generateUniqueSlug(title, async (slugToCheck) => {
+      const existing = await Product.findOne({ slug: slugToCheck });
+      return !!existing;
+    });
+
     const productDoc = await Product.create({
       title,
+      slug,
       description,
       destinationCountry,
       destinationCity,
@@ -174,8 +182,19 @@ export default async function handle(req, res) {
       await deleteS3Objects(removedImages);
     }
 
+    // Generate new slug if title changed or slug doesn't exist
+    let slug = oldProduct?.slug;
+    if (!slug || title !== oldProduct?.title) {
+      slug = await generateUniqueSlug(title, async (slugToCheck) => {
+        // Check if slug exists for a different product
+        const existing = await Product.findOne({ slug: slugToCheck, _id: { $ne: _id } });
+        return !!existing;
+      });
+    }
+
     const update = {
       title,
+      slug,
       description,
       destinationCountry,
       destinationCity,
